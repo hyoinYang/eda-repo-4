@@ -142,19 +142,23 @@ def display_category_analysis_results(category_name, category_analysis, category
     if not category_demographics.empty:
         st.subheader("👥 업종별 고객 특성")
         
-        # 성별 데이터 처리
-        gender_data = category_demographics.groupby('sex')['sales_by_gender'].sum()
-        if not gender_data.empty:
-            st.write("**성별 매출 분포**")
-            fig_gender = create_gender_sales_chart(gender_data)
-            st.plotly_chart(fig_gender, use_container_width=True)
+        col1, col2 = st.columns(2)
         
-        # 연령대 데이터 처리
-        age_data = category_demographics.groupby('age')['sales_by_age'].sum()
-        if not age_data.empty:
-            st.write("**연령대 매출 분포**")
-            fig_age = create_age_sales_chart(age_data)
-            st.plotly_chart(fig_age, use_container_width=True)
+        with col1:
+            # 성별 데이터 처리
+            gender_data = category_demographics.groupby('sex')['sales_by_gender'].sum()
+            if not gender_data.empty:
+                st.write("**성별 매출 분포**")
+                fig_gender = create_gender_sales_chart(gender_data)
+                st.plotly_chart(fig_gender, use_container_width=True)
+        
+        with col2:
+            # 연령대 데이터 처리
+            age_data = category_demographics.groupby('age')['sales_by_age'].sum()
+            if not age_data.empty:
+                st.write("**연령대 매출 분포**")
+                fig_age = create_age_sales_chart(age_data)
+                st.plotly_chart(fig_age, use_container_width=True)
     
     # 시간대별 유동인구 패턴
     if not category_time_patterns.empty:
@@ -166,14 +170,27 @@ def display_category_analysis_results(category_name, category_analysis, category
 
 
 def create_gender_sales_chart(gender_data):
-    """성별 매출 분포 차트를 생성합니다."""
-    import plotly.graph_objects as go
+    """성별 매출 분포 파이 차트를 생성합니다."""
+    import plotly.express as px
+    import pandas as pd
     
-    fig = go.Figure(data=[
-        go.Bar(x=gender_data.index, y=gender_data.values, 
-               marker_color=['#1f77b4', '#ff7f0e'])
-    ])
-    fig.update_layout(yaxis_title="매출(원)", height=300)
+    # 데이터를 DataFrame으로 변환하고 한국어 라벨로 변경
+    df = pd.DataFrame({
+        '성별': gender_data.index,
+        '매출': gender_data.values
+    })
+    
+    # 성별 라벨을 한국어로 변환
+    df['성별'] = df['성별'].map({'M': '남성', 'F': '여성'}).fillna(df['성별'])
+    
+    # 파이 차트 생성
+    fig = px.pie(
+        df, 
+        names='성별', 
+        values='매출')
+    fig.update_layout(height=300)
+    fig.update_traces(marker_colors=['#1f77b4', '#ff7f0e'])
+    
     return fig
 
 
@@ -220,14 +237,24 @@ def create_age_sales_chart(age_data):
 
 
 def create_gender_population_chart(gender_data):
-    """성별 유동인구 차트를 생성합니다."""
-    import plotly.graph_objects as go
+    """성별 유동인구 파이 차트를 생성합니다."""
+    import plotly.express as px
+    import pandas as pd
     
-    fig = go.Figure(data=[
-        go.Bar(x=['남성', '여성'], y=[gender_data['male'], gender_data['female']], 
-               marker_color=['#1f77b4', '#ff7f0e'])
-    ])
-    fig.update_layout(yaxis_title="인구수", height=300)
+    # 데이터를 DataFrame으로 변환
+    df = pd.DataFrame({
+        '성별': ['남성', '여성'],
+        '인구수': [gender_data['male'], gender_data['female']]
+    })
+    
+    # 파이 차트 생성
+    fig = px.pie(
+        df, 
+        names='성별', 
+        values='인구수')
+    fig.update_layout(height=300)
+    fig.update_traces(marker_colors=['#1f77b4', '#ff7f0e'])
+    
     return fig
 
 
