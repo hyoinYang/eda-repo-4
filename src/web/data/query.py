@@ -190,6 +190,7 @@ def fetch_dong_map_for_areas():
 
 @st.cache_data(show_spinner=False)
 def fetch_commercial_area_analysis(area_code: int, cache_key=None):
+    import numpy as np
     """
     특정 상권의 업종별 분석 데이터를 가져옵니다.
     
@@ -215,16 +216,24 @@ def fetch_commercial_area_analysis(area_code: int, cache_key=None):
     GROUP BY ca.name, sc.name
     ORDER BY total_sales DESC
     """
-    return pd.read_sql(text(sql), engine, params={
+    df = pd.read_sql(text(sql), engine, params={
         "area_code": area_code,
         "q1": ALL_YQ[0],
         "q4": ALL_YQ[1],
         "categories": tuple(FOOD10)
     })
 
+    df["avg_sales"] = np.where(df["shop_count"] != 0,
+                            df["total_sales"] // df["shop_count"],
+                            np.nan).astype(int)
+
+    return df.sort_values("avg_sales", ascending=False)
+
 
 @st.cache_data(show_spinner=False)
 def fetch_business_category_analysis(category_name: str, cache_key=None):
+    import numpy as np
+
     """추천 상권
     특정 업종의 상권별 분석 데이터를 가져옵니다.
     
@@ -252,11 +261,18 @@ def fetch_business_category_analysis(category_name: str, cache_key=None):
     LIMIT 50
 
     """
-    return pd.read_sql(text(sql), engine, params={
+    df = pd.read_sql(text(sql), engine, params={
         "category_name": category_name,
         "q1": ALL_YQ[0],
         "q4": ALL_YQ[1]
     })
+
+    df["avg_sales"] = np.where(df["shop_count"] != 0,
+                            df["total_sales"] // df["shop_count"],
+                            np.nan).astype(int)
+
+    return df.sort_values("avg_sales", ascending=False)
+
 
 
 @st.cache_data(show_spinner=False)
