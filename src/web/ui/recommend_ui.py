@@ -4,6 +4,8 @@ Recommendation UI functions
 """
 
 import streamlit as st
+import streamlit.components.v1 as components
+import pandas as pd
 from config import TIME_X_VALS, TIME_LABELS, DAY_LABELS, GENDER_LABELS
 from data.query import (
     fetch_commercial_area_analysis,
@@ -13,6 +15,7 @@ from data.query import (
     fetch_population_patterns,
     fetch_time_patterns
 )
+from charts.map import create_kakao_map
 
 
 def display_area_analysis_results(area_name, area_info, area_analysis, demographics, population_patterns, time_patterns):
@@ -30,7 +33,22 @@ def display_area_analysis_results(area_name, area_info, area_analysis, demograph
     with col3:
         st.metric("경도", f"{area_info['lon']:.4f}")
     with col4:
-        st.metric("상권코드", area_info['commercial_area_code'])
+        # Create a DataFrame for the map function
+        df_area = pd.DataFrame([{
+            'commercial_area_code': area_info['commercial_area_code'],
+            'lat': area_info['lat'],
+            'lon': area_info['lon'],
+            'area_name': area_name,
+            'gu': area_info['gu'],
+            'dong': area_info['dong']
+        }])
+        
+        # Create Kakao map
+        map_html = create_kakao_map([area_info['commercial_area_code']], df_area)
+        if map_html:
+            components.html(map_html, height=300)
+        else:
+            st.metric("상권코드", area_info['commercial_area_code'])
     
     # 추천 업종
     if not area_analysis.empty:
@@ -159,7 +177,7 @@ def display_category_analysis_results(category_name, category_analysis, category
                 st.write("**연령대 매출 분포**")
                 fig_age = create_age_sales_chart(age_data)
                 st.plotly_chart(fig_age, use_container_width=True)
-    
+        
     # 시간대별 유동인구 패턴
     if not category_time_patterns.empty:
         st.subheader("⏰ 시간대별 유동인구 패턴")
