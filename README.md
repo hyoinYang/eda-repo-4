@@ -14,7 +14,7 @@
   |------|------|---------|--------|
   | 이가람 | 팀장, 데이터 분석, 대시보드 제작 | [@rraamm8](https://github.com/rraamm8) | garam.rachel.lee@gmail.com |
   | 이충협 | 데이터 분석 | [@chunghyeop](https://github.com/jihunlee) | leech3583@gmail.com |
-  | 양효인 | 데이터 분석, 대시보드 제작 / 배포 | [@hyoinyang] (https://github.com/hyoinyang) | hyoinyang02@gmail.com |
+  | 양효인 | 데이터 분석, 대시보드 제작 / 배포 | [@hyoinyang](https://github.com/hyoinyang) | hyoinyang02@gmail.com |
   
 </div>
 <br><br>
