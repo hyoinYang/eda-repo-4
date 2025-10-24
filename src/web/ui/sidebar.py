@@ -41,6 +41,52 @@ def render_sidebar():
 
     return selected_area_codes, sel_cats, areas_key, cats_key, df_areas, all_categories
 
+def render_sidebar_for_recommand():
+    """
+    추천 시스템용 사이드바를 렌더링합니다.
+    
+    Returns:
+        tuple: (recommend_type, selected_area, selected_category, df_areas, categories)
+    """
+    st.sidebar.header("🎯 추천 시스템")
+    
+    # 추천 타입 선택
+    st.sidebar.subheader("📊 추천 유형 선택")
+    recommend_type = st.sidebar.radio(
+        "어떤 추천을 받고 싶으신가요?",
+        ["상권명 기반 분석", "업종 기반 추천"]
+    )
+    
+    # 데이터 로드
+    with st.spinner("데이터 로딩 중..."):
+        df_areas, categories = fetch_areas_and_categories()
+    
+    selected_area = None
+    selected_category = None
+    
+    if recommend_type == "상권명 기반 분석":
+        st.sidebar.subheader("📍 상권 선택")
+        selected_area = st.sidebar.selectbox(
+            "추천받을 상권을 선택하세요:",
+            options=df_areas['area_name'].tolist(),
+        )
+        
+        if st.sidebar.button("🔍 상권 분석 시작", type="primary"):
+            st.session_state['analyze_area'] = True
+            st.session_state['selected_area'] = selected_area
+    else:
+        st.sidebar.subheader("🍽️ 업종 선택")
+        selected_category = st.sidebar.selectbox(
+            "추천받을 업종을 선택하세요:",
+            options=categories,
+        )
+        
+        if st.sidebar.button("🔍 업종 분석 시작", type="primary"):
+            st.session_state['analyze_category'] = True
+            st.session_state['selected_category'] = selected_category
+    
+    return recommend_type, selected_area, selected_category, df_areas, categories
+
 
 def _render_area_selector(df_areas):
     """상권 선택 UI를 렌더링합니다."""

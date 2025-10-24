@@ -182,3 +182,264 @@ def fetch_dong_map_for_areas():
     WHERE ca.lon IS NOT NULL AND ca.lat IS NOT NULL
     """
     return pd.read_sql(text(sql), engine)
+
+
+# ===============================
+# 🎯 RECOMMENDATION QUERY FUNCTIONS
+# ===============================
+
+@st.cache_data(show_spinner=False)
+def fetch_commercial_area_analysis(area_code: int, cache_key=None):
+    """
+    특정 상권의 업종별 분석 데이터를 가져옵니다.
+    
+    Args:
+        area_code: 상권 코드
+        cache_key: 캐시 키
+        
+    Returns:
+        pd.DataFrame: 상권별 업종 분석 데이터
+    """
+    sql = """
+    SELECT 
+        ca.name AS commercial_area_name,
+        sc.name AS service_category_name,
+        SUM(sdt.sales) AS total_sales,
+        sum(sh.shop_count) AS shop_count
+    FROM Shop_Count sh
+    JOIN Commercial_Area ca ON ca.code = sh.commercial_area_code
+    JOIN Service_Category sc ON sc.code = sh.service_category_code
+    JOIN Sales_Daytype sdt ON sdt.store_id = sh.id
+    WHERE sh.commercial_area_code = :area_code
+        AND sc.name IN :categories
+    GROUP BY ca.name, sc.name
+    ORDER BY total_sales DESC
+    """
+    return pd.read_sql(text(sql), engine, params={
+        "area_code": area_code,
+        "q1": ALL_YQ[0],
+        "q4": ALL_YQ[1],
+        "categories": tuple(FOOD10)
+    })
+
+
+@st.cache_data(show_spinner=False)
+def fetch_business_category_analysis(category_name: str, cache_key=None):
+    """추천 상권
+    특정 업종의 상권별 분석 데이터를 가져옵니다.
+    
+    Args:
+        category_name: 업종명
+        cache_key: 캐시 키
+        
+    Returns:
+        pd.DataFrame: 업종별 상권 분석 데이터
+    """
+    sql = """
+    SELECT 
+        ca.name AS commercial_area_name,
+        ca.gu, ca.dong,
+        sc.name AS service_category_name,
+        SUM(sdt.sales) AS total_sales,
+        sum(sh.shop_count) AS shop_count
+    FROM Shop_Count sh
+    JOIN Commercial_Area ca ON ca.code = sh.commercial_area_code
+    JOIN Service_Category sc ON sc.code = sh.service_category_code
+    JOIN Sales_Daytype sdt ON sdt.store_id = sh.id
+    WHERE sc.name = :category_name
+    GROUP BY ca.name, ca.gu, ca.dong, sc.name
+    ORDER BY total_sales DESC
+    LIMIT 50
+
+    """
+    return pd.read_sql(text(sql), engine, params={
+        "category_name": category_name,
+        "q1": ALL_YQ[0],
+        "q4": ALL_YQ[1]
+    })
+
+
+@st.cache_data(show_spinner=False)
+def fetch_customer_demographics(area_code: int, cache_key=None):
+    """
+    특정 상권의 고객 인구통계 데이터를 가져옵니다.
+    
+    Args:
+        area_code: 상권 코드
+        cache_key: 캐시 키
+        
+    Returns:
+        pd.DataFrame: 고객 인구통계 데이터
+    """
+    sql = """
+    SELECT 
+        ss.sex,
+        SUM(ss.sales) AS sales_by_gender,
+        sa.age,
+        SUM(sa.sales) AS sales_by_age
+    FROM Shop_Count sh
+    JOIN Sales_Sex ss ON ss.store_id = sh.id
+    LEFT JOIN Sales_Age sa ON sa.store_id = sh.id
+    WHERE sh.commercial_area_code = :area_code
+    GROUP BY ss.sex, sa.age
+    ORDER BY sales_by_gender DESC
+    """
+    return pd.read_sql(text(sql), engine, params={
+        "area_code": area_code,
+        "q1": ALL_YQ[0],
+        "q4": ALL_YQ[1]
+    })
+
+
+@st.cache_data(show_spinner=False)
+def fetch_category_demographics(category_name: str, cache_key=None):
+    """
+    특정 업종의 고객 인구통계 데이터를 가져옵니다.
+    
+    Args:
+        category_name: 업종명
+        cache_key: 캐시 키
+        
+    Returns:
+        pd.DataFrame: 업종별 고객 인구통계 데이터
+    """
+    sql = """
+    SELECT 
+        ss.sex,
+        SUM(ss.sales) AS sales_by_gender,
+        sa.age,
+        SUM(sa.sales) AS sales_by_age
+    FROM Shop_Count sh
+    JOIN Service_Category sc ON sc.code = sh.service_category_code
+    JOIN Sales_Sex ss ON ss.store_id = sh.id
+    LEFT JOIN Sales_Age sa ON sa.store_id = sh.id
+    WHERE sc.name = :category_name
+    GROUP BY ss.sex, sa.age
+    ORDER BY sales_by_gender DESC
+    """
+    return pd.read_sql(text(sql), engine, params={
+        "category_name": category_name,
+        "q1": ALL_YQ[0],
+        "q4": ALL_YQ[1]
+    })
+
+
+@st.cache_data(show_spinner=False)
+def fetch_population_patterns(area_code: int, cache_key=None):
+    """
+    특정 상권의 인구 패턴 데이터를 가져옵니다.
+    
+    Args:
+        area_code: 상권 코드
+        cache_key: 캐시 키
+        
+    Returns:
+        pd.DataFrame: 인구 패턴 데이터
+    """
+    # 상주/직장 인구 데이터
+    sql_pop = """
+    SELECT 
+        pg.pop_type,
+        AVG(pg.population) AS avg_population
+    FROM Population_GA pg
+    WHERE pg.commercial_area_code = :area_code
+    GROUP BY pg.pop_type
+    """
+    
+    # 유동인구 데이터
+    sql_float = """
+    SELECT 
+        AVG(mon_pop) AS mon, AVG(tue_pop) AS tue, AVG(wed_pop) AS wed,
+        AVG(thu_pop) AS thu, AVG(fri_pop) AS fri, AVG(sat_pop) AS sat, AVG(sun_pop) AS sun,
+        AVG(male_pop) AS male, AVG(female_pop) AS female
+    FROM Floating_Population fp
+    WHERE fp.commercial_area_code = :area_code
+    """
+    
+    pop_data = pd.read_sql(text(sql_pop), engine, params={
+        "area_code": area_code,
+        "q1": ALL_YQ[0],
+        "q4": ALL_YQ[1]
+    })
+    
+    float_data = pd.read_sql(text(sql_float), engine, params={
+        "area_code": area_code,
+        "q1": ALL_YQ[0],
+        "q4": ALL_YQ[1]
+    })
+    
+    # 데이터 병합
+    result = float_data.copy()
+    
+    # 상주/직장 인구 추가
+    for _, row in pop_data.iterrows():
+        if row['pop_type'] == 'RESIDENT':
+            result['resident'] = row['avg_population']
+        elif row['pop_type'] == 'WORKING':
+            result['worker'] = row['avg_population']
+    
+    return result
+
+
+@st.cache_data(show_spinner=False)
+def fetch_time_patterns(area_code: int, cache_key=None):
+    """
+    특정 상권의 시간대별 패턴 데이터를 가져옵니다.
+    
+    Args:
+        area_code: 상권 코드
+        cache_key: 캐시 키
+        
+    Returns:
+        pd.DataFrame: 시간대별 패턴 데이터
+    """
+    sql = """
+    SELECT 
+        AVG(t00_06_pop) AS t00_06, AVG(t06_11_pop) AS t06_11, AVG(t11_14_pop) AS t11_14,
+        AVG(t14_17_pop) AS t14_17, AVG(t17_21_pop) AS t17_21, AVG(t21_24_pop) AS t21_24
+    FROM Floating_Population fp
+    WHERE fp.commercial_area_code = :area_code
+        AND fp.year_quarter BETWEEN :q1 AND :q4
+    """
+    return pd.read_sql(text(sql), engine, params={
+        "area_code": area_code,
+        "q1": ALL_YQ[0],
+        "q4": ALL_YQ[1]
+    })
+
+
+@st.cache_data(show_spinner=False)
+def fetch_category_time_patterns(category_name: str, cache_key=None):
+    """
+    특정 업종의 상권별 시간대별 유동인구 패턴 데이터를 가져옵니다.
+    
+    Args:
+        category_name: 업종명
+        cache_key: 캐시 키
+        
+    Returns:
+        pd.DataFrame: 업종별 상권 시간대별 유동인구 데이터
+    """
+    sql = """
+    SELECT 
+        ca.name AS commercial_area_name,
+        ca.code AS commercial_area_code,
+        AVG(fp.t00_06_pop) AS t00_06, AVG(fp.t06_11_pop) AS t06_11, AVG(fp.t11_14_pop) AS t11_14,
+        AVG(fp.t14_17_pop) AS t14_17, AVG(fp.t17_21_pop) AS t17_21, AVG(fp.t21_24_pop) AS t21_24,
+        SUM(sdt.sales) AS total_sales
+    FROM Shop_Count sh
+    JOIN Commercial_Area ca ON ca.code = sh.commercial_area_code
+    JOIN Service_Category sc ON sc.code = sh.service_category_code
+    JOIN Sales_Daytype sdt ON sdt.store_id = sh.id
+    JOIN Floating_Population fp ON fp.commercial_area_code = ca.code
+    WHERE sc.name = :category_name
+        AND fp.year_quarter BETWEEN :q1 AND :q4
+    GROUP BY ca.name, ca.code
+    ORDER BY total_sales DESC
+    LIMIT 10
+    """
+    return pd.read_sql(text(sql), engine, params={
+        "category_name": category_name,
+        "q1": ALL_YQ[0],
+        "q4": ALL_YQ[1]
+    })
