@@ -5,33 +5,43 @@ Main dashboard application
 
 import streamlit as st
 
-# Import custom modules
 from config import PAGE_TITLE, PAGE_LAYOUT
-from ui import render_sidebar, render_all_charts
-from data import load_dashboard_data, prepare_sales_data
+from ui import render_sidebar_for_recommand, display_area_analysis_results, display_category_analysis_results
+from analyzer import analyze_selected_area, analyze_selected_category
+from data.query import fetch_time_patterns
+
 
 
 def main():
     """메인 대시보드 애플리케이션을 실행합니다."""
-    # 페이지 설정
-    st.set_page_config(page_title=PAGE_TITLE, layout=PAGE_LAYOUT)
     
-    # 사이드바 렌더링 및 필터 값 가져오기
-    selected_area_codes, sel_cats, areas_key, cats_key, df_areas, all_categories = render_sidebar()
+    st.title("🏪 상권 추천 시스템")
     
-    # 데이터 로딩
-    df_sales, df_fpop, df_pga, df_income = load_dashboard_data(
-        selected_area_codes, sel_cats, areas_key, cats_key
-    )
+    # 사이드바 렌더링
+    recommend_type, selected_area, selected_category, df_areas, categories = render_sidebar_for_recommand()
     
-    # 매출 데이터 전처리
-    df_sales = prepare_sales_data(df_sales, df_areas, selected_area_codes)
-    
-    # 모든 차트 렌더링
-    render_all_charts(
-        selected_area_codes, sel_cats, all_categories,
-        df_sales, df_fpop, df_pga, df_income, df_areas
-    )
+    # 분석 실행
+    if st.session_state.get('analyze_area', False):
+        st.session_state['analyze_area'] = False
+        # 상권 분석
+        area_name, area_info, area_analysis, demographics, population_patterns, time_patterns = analyze_selected_area(
+            st.session_state['selected_area'], df_areas
+        )
+        
+        area_code = area_info['commercial_area_code']
+        additional_time_patterns = fetch_time_patterns(area_code)
+        
+        # 결과 표시
+        display_area_analysis_results(area_name, area_info, area_analysis, demographics, population_patterns, time_patterns)
+        
+    elif st.session_state.get('analyze_category', False):
+        st.session_state['analyze_category'] = False
+        # 업종 분석
+        category_name, category_analysis, category_demographics, category_time_patterns = analyze_selected_category(
+            st.session_state['selected_category']
+        )
+        # 결과 표시
+        display_category_analysis_results(category_name, category_analysis, category_demographics, category_time_patterns)
 
 
 if __name__ == "__main__":
