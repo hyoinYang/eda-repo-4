@@ -63,17 +63,19 @@ def display_area_analysis_results(area_name, area_info, area_analysis, demograph
             category_name = row.get('service_category_name', f'업종 {idx+1}')
             total_sales = row.get('total_sales', 0)
             shop_count = row.get('shop_count', 0)
-            
-            with st.expander(f"{category_name} (분기별 매출: {total_sales:,}원)"):
+            if shop_count > 0:
+                avg_sales = total_sales / shop_count
+            else:
+                avg_sales = 0
+
+            with st.expander(f"{category_name} (점포당 분기별 매출: {avg_sales:,.0f}원)"):
                 col1, col2 = st.columns(2)
                 with col1:
                     st.write(f"**총 분기별 매출**: {total_sales:,}원")
                     st.write(f"**점포 수**: {int(shop_count)}개")
                 with col2:
                     st.write(f"**업종명**: {category_name}")
-                    if shop_count > 0:
-                        avg_sales = total_sales / shop_count
-                        st.write(f"**점포당 분기별 평균 매출**: {avg_sales:,.0f}원")
+                    st.write(f"**점포당 분기별 평균 매출**: {avg_sales:,.0f}원")
     
     # 고객 인구통계
     if not demographics.empty:
@@ -153,8 +155,13 @@ def display_category_analysis_results(category_name, category_analysis, category
             shop_count = row.get('shop_count', 0)
             gu = row.get('gu', '')
             dong = row.get('dong', '')
-            
-            with st.expander(f"{area_name} (분기별 매출: {total_sales:,}원)"):
+
+            if shop_count > 0:
+                avg_sales = total_sales / shop_count
+            else:
+                avg_sales = 0
+
+            with st.expander(f"{area_name} (점포당 분기별 매출: {avg_sales:,.0f}원)"):
                 col1, col2 = st.columns(2)
                 with col1:
                     st.write(f"**지역**: {gu} {dong}")
