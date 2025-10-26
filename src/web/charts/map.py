@@ -4,7 +4,7 @@ Map generation functions
 """
 
 import pandas as pd
-from config import (
+from src.web.config import (
     CHART_HEIGHT, KAKAO_JS_KEY, DEFAULT_MAP_LEVEL,
     KOREA_LAT_RANGE, KOREA_LON_RANGE
 )

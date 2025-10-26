@@ -4,8 +4,8 @@ Sales chart generation functions
 """
 
 import plotly.graph_objects as go
-from config import CHART_HEIGHT, CHART_TEMPLATE, BASE_COLORS
-from data.query import fetch_sales_2024
+from src.web.config import CHART_HEIGHT, CHART_TEMPLATE, BASE_COLORS
+from src.web.data.query import fetch_sales_2024
 
 
 def create_sales_comparison_chart(selected_area_codes, sel_cats, all_categories):

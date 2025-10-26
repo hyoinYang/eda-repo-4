@@ -4,11 +4,11 @@ Data loading functions for the dashboard
 """
 
 import streamlit as st
-from data.query import (
+from src.web.data.query import (
     fetch_sales_2024, fetch_floating_by_area_2024,
     fetch_population_ga_2024, fetch_income_2024
 )
-from config import ALL_YQ
+from src.web.config import ALL_YQ
 
 
 def load_dashboard_data(selected_area_codes, sel_cats, areas_key, cats_key):

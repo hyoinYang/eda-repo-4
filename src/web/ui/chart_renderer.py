@@ -5,11 +5,11 @@ Chart rendering functions for the dashboard
 
 import streamlit as st
 import streamlit.components.v1 as components
-from charts import (
+from src.web.charts import (
     create_sales_comparison_chart, create_gender_day_chart, create_time_population_chart,
     create_population_chart, create_expenditure_chart, create_kakao_map
 )
-from utils import get_secret
+from src.web.utils import get_secret
 
 
 def render_all_charts(selected_area_codes, sel_cats, all_categories, 
