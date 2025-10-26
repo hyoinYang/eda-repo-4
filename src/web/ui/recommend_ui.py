@@ -6,8 +6,8 @@ Recommendation UI functions
 import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
-from src.web.config import TIME_X_VALS, TIME_LABELS, DAY_LABELS, GENDER_LABELS
-from src.web.data.query import (
+from config import TIME_X_VALS, TIME_LABELS, DAY_LABELS, GENDER_LABELS
+from data.query import (
     fetch_commercial_area_analysis,
     fetch_business_category_analysis,
     fetch_customer_demographics,
@@ -15,8 +15,8 @@ from src.web.data.query import (
     fetch_population_patterns,
     fetch_time_patterns
 )
-from src.web.charts.map import create_kakao_map
-from src.web.charts import create_sales_comparison_chart, create_population_chart, create_expenditure_chart
+from charts.map import create_kakao_map
+from charts import create_sales_comparison_chart, create_population_chart, create_expenditure_chart
 
 
 def display_area_analysis_results(area_name, area_info, area_analysis, demographics, population_patterns, time_patterns, population_chart=None):

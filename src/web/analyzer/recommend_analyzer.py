@@ -4,7 +4,7 @@ Recommendation analysis functions
 """
 
 import streamlit as st
-from src.web.data.query import (
+from data.query import (
     fetch_commercial_area_analysis,
     fetch_business_category_analysis,
     fetch_customer_demographics,

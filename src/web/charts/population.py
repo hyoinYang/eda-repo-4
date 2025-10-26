@@ -4,7 +4,7 @@ Population chart generation functions
 """
 
 import plotly.graph_objects as go
-from src.web.config import (
+from config import (
     CHART_HEIGHT, CHART_TEMPLATE, POPULATION_COLORS,
     TIME_PERIODS, TIME_LABELS, TIME_X_VALS, DAY_LABELS, DAY_COLUMNS,
     GENDER_LABELS, GENDER_COLUMNS, POPULATION_TYPES, POPULATION_COLUMNS

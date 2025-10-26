@@ -4,7 +4,7 @@ Sidebar functions for the dashboard
 """
 
 import streamlit as st
-from src.web.data import fetch_areas_and_categories, fetch_dong_map_for_areas
+from data import fetch_areas_and_categories, fetch_dong_map_for_areas
 
 
 def render_sidebar():

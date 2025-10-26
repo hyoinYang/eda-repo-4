@@ -5,7 +5,7 @@ Expenditure chart generation functions
 
 import plotly.graph_objects as go
 import streamlit as st
-from src.web.config import CHART_HEIGHT, CHART_TEMPLATE, EXPENDITURE_COLORS, EXPENDITURE_TYPES
+from config import CHART_HEIGHT, CHART_TEMPLATE, EXPENDITURE_COLORS, EXPENDITURE_TYPES
 
 
 def create_expenditure_chart(df_income, selected_area_codes, df_areas):

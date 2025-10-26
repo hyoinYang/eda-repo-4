@@ -6,7 +6,7 @@ Database query functions for the Seoul Commercial Area Analysis Dashboard
 import pandas as pd
 from sqlalchemy import create_engine, text
 import streamlit as st
-from src.web.config import DB_URL, FOOD10, ALL_YQ
+from config import DB_URL, FOOD10, ALL_YQ
 
 
 # Database engine

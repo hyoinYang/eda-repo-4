@@ -3,12 +3,12 @@ Main dashboard application
 메인 대시보드 애플리케이션
 """
 import streamlit as st
-from src.web.config import PAGE_TITLE, PAGE_LAYOUT
-from src.web.ui import render_sidebar_for_recommand, display_area_analysis_results, display_category_analysis_results
-from src.web.analyzer import analyze_selected_area, analyze_selected_category
-from src.web.data.query import fetch_time_patterns, fetch_areas_and_categories
-from src.web.charts import create_sales_comparison_chart, create_population_chart, create_expenditure_chart
-from src.web.data import load_dashboard_data, prepare_sales_data
+from config import PAGE_TITLE, PAGE_LAYOUT
+from ui import render_sidebar_for_recommand, display_area_analysis_results, display_category_analysis_results
+from analyzer import analyze_selected_area, analyze_selected_category
+from data.query import fetch_time_patterns, fetch_areas_and_categories
+from charts import create_sales_comparison_chart, create_population_chart, create_expenditure_chart
+from data import load_dashboard_data, prepare_sales_data
 
 
 
@@ -73,7 +73,7 @@ def _render_area_based_charts(area_code, df_areas):
     """상권 기반 분석 차트들을 렌더링합니다."""
     
     # 카테고리 정보 가져오기
-    from src.web.data.query import fetch_areas_and_categories
+    from data.query import fetch_areas_and_categories
     _, all_categories = fetch_areas_and_categories()
     
     # 데이터 로딩
@@ -109,7 +109,7 @@ def _render_category_based_charts(category_name):
     """업종 기반 분석 차트들을 렌더링합니다."""
     
     # 카테고리 정보 가져오기
-    from src.web.data.query import fetch_areas_and_categories
+    from data.query import fetch_areas_and_categories
     _, all_categories = fetch_areas_and_categories()
     
     # 데이터 로딩
