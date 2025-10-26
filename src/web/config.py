@@ -21,8 +21,16 @@ PAGE_LAYOUT = "wide"
 # Database configuration
 DB_URL = os.getenv("DB_URL")
 
-# External API keys
-KAKAO_JS_KEY = os.getenv("KAKAO_JAVASCRIPT_KEY")
+# External API keys - Streamlit secrets 우선, 환경변수 fallback
+def get_kakao_js_key():
+    """카카오 JavaScript 키를 가져옵니다. Streamlit secrets 우선, 환경변수 fallback"""
+    try:
+        import streamlit as st
+        return st.secrets.get("KAKAO_JAVASCRIPT_KEY")
+    except Exception:
+        return os.getenv("KAKAO_JAVASCRIPT_KEY")
+
+KAKAO_JS_KEY = get_kakao_js_key()
 
 # --- 외식 10종 목록 ---
 FOOD10 = [
