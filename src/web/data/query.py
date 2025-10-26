@@ -51,8 +51,8 @@ def fetch_sales_2024(selected_areas: list[int] | None, selected_cats: list[str],
         pd.DataFrame: 매출 데이터
     """
     # Sum 2024 Sales_Daytype by area, filtered by categories and/or areas
-    where = ["sc.year_quarter BETWEEN :q1 AND :q4", "cat.name IN :cats"]
-    params = {"q1": ALL_YQ[0], "q4": ALL_YQ[1], "cats": tuple(selected_cats)}
+    where = ["sc.year_quarter = 20244", "cat.name IN :cats"]
+    params = {"cats": tuple(selected_cats)}
     if selected_areas:
         where.append("sc.commercial_area_code IN :areas")
         params["areas"] = tuple(int(x) for x in selected_areas)
@@ -81,8 +81,8 @@ def fetch_floating_by_area_2024(selected_areas: list[int] | None, cache_key=None
     Returns:
         pd.DataFrame: 유동인구 데이터
     """
-    where = ["year_quarter BETWEEN :q1 AND :q4"]
-    params = {"q1": ALL_YQ[0], "q4": ALL_YQ[1]}
+    where = ["year_quarter = 20244"]
+    params = {}
     if selected_areas:
         where.append("commercial_area_code IN :areas")
         params["areas"] = tuple(int(x) for x in selected_areas)
@@ -114,8 +114,8 @@ def fetch_population_ga_2024(selected_areas: list[int] | None, cache_key=None):
         pd.DataFrame: 상주/직장 인구 데이터
     """
     # Sum by quarter then average across quarters, per area_code and pop_type
-    where = ["year_quarter BETWEEN :q1 AND :q4"]
-    params = {"q1": ALL_YQ[0], "q4": ALL_YQ[1]}
+    where = ["year_quarter = 20244"]
+    params = {}
     if selected_areas:
         where.append("pg.commercial_area_code IN :areas")
         params["areas"] = tuple(int(x) for x in selected_areas)
@@ -159,10 +159,10 @@ def fetch_income_2024(cache_key=None):
            SUM(i.food_expenditure)  AS food_expenditure
     FROM Income i
     JOIN Dong d ON d.code = i.dong_code
-    WHERE i.year_quarter BETWEEN :q1 AND :q4
+    WHERE i.year_quarter = 20244
     GROUP BY i.dong_code, d.name
     """
-    return pd.read_sql(text(sql), engine, params={"q1": ALL_YQ[0], "q4": ALL_YQ[1]})
+    return pd.read_sql(text(sql), engine)
 
 
 @st.cache_data(show_spinner=False)
@@ -212,13 +212,12 @@ def fetch_commercial_area_analysis(area_code: int, cache_key=None):
     JOIN Sales_Daytype sdt ON sdt.store_id = sh.id
     WHERE sh.commercial_area_code = :area_code
         AND sc.name IN :categories
+        AND sh.year_quarter = 20244
     GROUP BY ca.name, sc.name
     ORDER BY total_sales DESC
     """
     return pd.read_sql(text(sql), engine, params={
         "area_code": area_code,
-        "q1": ALL_YQ[0],
-        "q4": ALL_YQ[1],
         "categories": tuple(FOOD10)
     })
 
@@ -247,15 +246,14 @@ def fetch_business_category_analysis(category_name: str, cache_key=None):
     JOIN Service_Category sc ON sc.code = sh.service_category_code
     JOIN Sales_Daytype sdt ON sdt.store_id = sh.id
     WHERE sc.name = :category_name
+        AND sh.year_quarter = 20244
     GROUP BY ca.name, ca.gu, ca.dong, sc.name
     ORDER BY total_sales DESC
     LIMIT 50
 
     """
     return pd.read_sql(text(sql), engine, params={
-        "category_name": category_name,
-        "q1": ALL_YQ[0],
-        "q4": ALL_YQ[1]
+        "category_name": category_name
     })
 
 
@@ -281,13 +279,12 @@ def fetch_customer_demographics(area_code: int, cache_key=None):
     JOIN Sales_Sex ss ON ss.store_id = sh.id
     LEFT JOIN Sales_Age sa ON sa.store_id = sh.id
     WHERE sh.commercial_area_code = :area_code
+        AND sh.year_quarter = 20244
     GROUP BY ss.sex, sa.age
     ORDER BY sales_by_gender DESC
     """
     return pd.read_sql(text(sql), engine, params={
-        "area_code": area_code,
-        "q1": ALL_YQ[0],
-        "q4": ALL_YQ[1]
+        "area_code": area_code
     })
 
 
@@ -314,13 +311,12 @@ def fetch_category_demographics(category_name: str, cache_key=None):
     JOIN Sales_Sex ss ON ss.store_id = sh.id
     LEFT JOIN Sales_Age sa ON sa.store_id = sh.id
     WHERE sc.name = :category_name
+        AND sh.year_quarter = 20244
     GROUP BY ss.sex, sa.age
     ORDER BY sales_by_gender DESC
     """
     return pd.read_sql(text(sql), engine, params={
-        "category_name": category_name,
-        "q1": ALL_YQ[0],
-        "q4": ALL_YQ[1]
+        "category_name": category_name
     })
 
 
@@ -343,6 +339,7 @@ def fetch_population_patterns(area_code: int, cache_key=None):
         AVG(pg.population) AS avg_population
     FROM Population_GA pg
     WHERE pg.commercial_area_code = :area_code
+        AND pg.year_quarter = 20244
     GROUP BY pg.pop_type
     """
     
@@ -354,18 +351,15 @@ def fetch_population_patterns(area_code: int, cache_key=None):
         AVG(male_pop) AS male, AVG(female_pop) AS female
     FROM Floating_Population fp
     WHERE fp.commercial_area_code = :area_code
+        AND fp.year_quarter = 20244
     """
     
     pop_data = pd.read_sql(text(sql_pop), engine, params={
-        "area_code": area_code,
-        "q1": ALL_YQ[0],
-        "q4": ALL_YQ[1]
+        "area_code": area_code
     })
     
     float_data = pd.read_sql(text(sql_float), engine, params={
-        "area_code": area_code,
-        "q1": ALL_YQ[0],
-        "q4": ALL_YQ[1]
+        "area_code": area_code
     })
     
     # 데이터 병합
@@ -399,12 +393,10 @@ def fetch_time_patterns(area_code: int, cache_key=None):
         AVG(t14_17_pop) AS t14_17, AVG(t17_21_pop) AS t17_21, AVG(t21_24_pop) AS t21_24
     FROM Floating_Population fp
     WHERE fp.commercial_area_code = :area_code
-        AND fp.year_quarter BETWEEN :q1 AND :q4
+        AND fp.year_quarter = 20244
     """
     return pd.read_sql(text(sql), engine, params={
-        "area_code": area_code,
-        "q1": ALL_YQ[0],
-        "q4": ALL_YQ[1]
+        "area_code": area_code
     })
 
 
@@ -433,13 +425,12 @@ def fetch_category_time_patterns(category_name: str, cache_key=None):
     JOIN Sales_Daytype sdt ON sdt.store_id = sh.id
     JOIN Floating_Population fp ON fp.commercial_area_code = ca.code
     WHERE sc.name = :category_name
-        AND fp.year_quarter BETWEEN :q1 AND :q4
+        AND sh.year_quarter = 20244
+        AND fp.year_quarter = 20244
     GROUP BY ca.name, ca.code
     ORDER BY total_sales DESC
     LIMIT 10
     """
     return pd.read_sql(text(sql), engine, params={
-        "category_name": category_name,
-        "q1": ALL_YQ[0],
-        "q4": ALL_YQ[1]
+        "category_name": category_name
     })
