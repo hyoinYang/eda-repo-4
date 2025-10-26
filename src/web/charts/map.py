@@ -45,6 +45,7 @@ def create_kakao_map(selected_area_codes, df_areas):
     level = DEFAULT_MAP_LEVEL  # 확대
 
     html = f"""
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 <div id="kmap" style="width:100%; height:{CHART_HEIGHT}px; position:relative;"></div>
 <div id="kmsg" style="position:absolute;top:8px;left:8px;background:#fff8;border:1px solid #ddd;padding:4px 8px;border-radius:6px;font-size:12px;display:none;"></div>
 <script>
@@ -55,10 +56,12 @@ def create_kakao_map(selected_area_codes, df_areas):
     function showMsg(t){{
         msg.innerText = t;
         msg.style.display = 'block';
+        console.log('[KakaoMap] ' + t);
     }}
 
     function initMap(){{
         try {{
+            console.log('[KakaoMap] 지도 초기화 시작');
             var center = new kakao.maps.LatLng({lat}, {lon});
             var map = new kakao.maps.Map(container, {{ center:center, level:{DEFAULT_MAP_LEVEL} }});
 
@@ -74,27 +77,42 @@ def create_kakao_map(selected_area_codes, df_areas):
                 var c = map.getCenter();
                 setTimeout(function(){{ map.relayout(); map.setCenter(c); }}, 0);
             }});
+            
+            console.log('[KakaoMap] 지도 초기화 성공');
         }} catch(e) {{
-            showMsg("카카오맵 초기화 오류: " + e);
+            showMsg("카카오맵 초기화 오류: " + e.message);
+            console.error('[KakaoMap] 초기화 오류:', e);
         }}
     }}
 
     function loadSdk(){{
         if (window.kakao && kakao.maps) {{
+            // 기존 객체도 HTTPS 강제 설정
+            if (kakao.maps.config) {{
+                kakao.maps.config.baseUrl = 'https://t1.daumcdn.net/mapjsapi/js/main/4.4.20/';
+            }}
             initMap();
             return;
         }}
         var s = document.createElement('script');
         s.src = "https://dapi.kakao.com/v2/maps/sdk.js?appkey={KAKAO_JS_KEY}&autoload=false";
         s.onload = function(){{
+            console.log('[KakaoMap] SDK 로드 완료');
             if (window.kakao && kakao.maps && kakao.maps.load) {{
+                // HTTPS 강제 설정 (Mixed Content 문제 해결)
+                if (kakao.maps.config) {{
+                    kakao.maps.config.baseUrl = 'https://t1.daumcdn.net/mapjsapi/js/main/4.4.20/';
+                    console.log('[KakaoMap] HTTPS baseUrl 설정 완료');
+                }}
                 kakao.maps.load(initMap);
             }} else {{
                 showMsg("SDK가 로드되었지만 kakao.maps 객체가 없습니다. (도메인/키 확인 필요)");
+                console.error('[KakaoMap] kakao.maps 객체 없음');
             }}
         }};
         s.onerror = function(){{
             showMsg("SDK 스크립트 로드 실패(네트워크/차단 가능성).");
+            console.error('[KakaoMap] SDK 로드 실패');
         }};
         document.head.appendChild(s);
 
