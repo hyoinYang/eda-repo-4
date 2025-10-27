@@ -169,8 +169,7 @@ def display_category_analysis_results(category_name, category_analysis, category
                 with col2:
                     st.write(f"**점포 수**: {int(shop_count)}개")
                     if shop_count > 0:
-                        avg_sales = total_sales / shop_count
-                        st.write(f"**점포당 분기별 평균 매출**: {avg_sales:,.0f}원")
+                        st.write(f"**점포당 분기별 평균 매출**: {avg_sales:,.2f}원")
     
     # 업종별 고객 특성
     if not category_demographics.empty:
