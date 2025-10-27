@@ -14,15 +14,12 @@ from data import load_dashboard_data, prepare_sales_data
 
 def main():
     st.set_page_config(layout="wide")
-
-    """상권 추천 페이지를 렌더링합니다."""
     
     st.title("🏪 상권 추천 시스템")
     
     # 사이드바 렌더링
     recommend_type, selected_area, selected_category, df_areas, categories = render_sidebar_for_recommand()
     
-    # 분석 실행
     if st.session_state.get('analyze_area', False):
         st.session_state['analyze_area'] = False
         # 상권 분석
@@ -70,6 +67,18 @@ def main():
         # 업종 기반 분석 차트들
         _render_category_based_charts(category_name)
 
+    else:
+        from streamlit_lottie import st_lottie
+        st.markdown("<div style='text-align:center; padding-top:50px;'><h2>사이드바에서 옵션을 선택하세요</h2></div>", unsafe_allow_html=True)
+
+        st_lottie(
+            animation_source = "https://lottie.host/be671b89-d75d-473d-abd6-902984e8c204/ba1bHSUcBT.json",
+            speed=1,
+            reverse=False,
+            quality="medium",
+            height=300,
+            key="welcome_lottie"
+        )
 
 def _render_area_based_charts(area_code, df_areas):
     """상권 기반 분석 차트들을 렌더링합니다."""
