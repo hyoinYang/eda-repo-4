@@ -206,15 +206,21 @@ def fetch_commercial_area_analysis(area_code: int, cache_key=None):
         ca.name AS commercial_area_name,
         sc.name AS service_category_name,
         SUM(sdt.sales) AS total_sales,
-        sum(sh.shop_count) AS shop_count
+        shop_data.shop_count
     FROM Shop_Count sh
     JOIN Commercial_Area ca ON ca.code = sh.commercial_area_code
     JOIN Service_Category sc ON sc.code = sh.service_category_code
     JOIN Sales_Daytype sdt ON sdt.store_id = sh.id
+    JOIN (
+        SELECT commercial_area_code, service_category_code, shop_count
+        FROM Shop_Count 
+        WHERE year_quarter = 20244
+    ) shop_data ON shop_data.commercial_area_code = sh.commercial_area_code 
+                AND shop_data.service_category_code = sh.service_category_code
     WHERE sh.commercial_area_code = :area_code
         AND sc.name IN :categories
         AND sh.year_quarter = 20244
-    GROUP BY ca.name, sc.name
+    GROUP BY ca.name, sc.name, shop_data.shop_count
     ORDER BY total_sales DESC
     """
     df = pd.read_sql(text(sql), engine, params={
@@ -249,14 +255,20 @@ def fetch_business_category_analysis(category_name: str, cache_key=None):
         ca.gu, ca.dong,
         sc.name AS service_category_name,
         SUM(sdt.sales) AS total_sales,
-        sum(sh.shop_count) AS shop_count
+        shop_data.shop_count
     FROM Shop_Count sh
     JOIN Commercial_Area ca ON ca.code = sh.commercial_area_code
     JOIN Service_Category sc ON sc.code = sh.service_category_code
     JOIN Sales_Daytype sdt ON sdt.store_id = sh.id
+    JOIN (
+        SELECT commercial_area_code, service_category_code, shop_count
+        FROM Shop_Count 
+        WHERE year_quarter = 20244
+    ) shop_data ON shop_data.commercial_area_code = sh.commercial_area_code 
+                AND shop_data.service_category_code = sh.service_category_code
     WHERE sc.name = :category_name
         AND sh.year_quarter = 20244
-    GROUP BY ca.name, ca.gu, ca.dong, sc.name
+    GROUP BY ca.name, ca.gu, ca.dong, sc.name, shop_data.shop_count
     ORDER BY total_sales DESC
     LIMIT 50
 
