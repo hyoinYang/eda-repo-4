@@ -66,9 +66,13 @@ def render_sidebar_for_recommand():
     
     if recommend_type == "상권명 기반 분석":
         st.sidebar.subheader("📍 상권 선택")
+
+        df_areas["display_name"] = df_areas["area_name"] + " (" + df_areas["dong"] + ")"
+
         selected_area = st.sidebar.selectbox(
             "추천받을 상권을 선택하세요:",
-            options=sorted(df_areas['area_name'].tolist()),
+            options=df_areas["area_name"].tolist(),
+        format_func=lambda x: f"{x} ({df_areas.loc[df_areas['area_name'] == x, 'dong'].values[0]})",
         )
         
         if st.sidebar.button("🔍 상권 분석 시작", type="primary"):
