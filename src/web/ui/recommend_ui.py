@@ -16,9 +16,10 @@ from data.query import (
     fetch_time_patterns
 )
 from charts.map import create_kakao_map
+from charts import create_sales_comparison_chart, create_population_chart, create_expenditure_chart
 
 
-def display_area_analysis_results(area_name, area_info, area_analysis, demographics, population_patterns, time_patterns):
+def display_area_analysis_results(area_name, area_info, area_analysis, demographics, population_patterns, time_patterns, population_chart=None):
     """상권 분석 결과를 표시합니다."""
     
     st.markdown("---")
@@ -62,17 +63,19 @@ def display_area_analysis_results(area_name, area_info, area_analysis, demograph
             category_name = row.get('service_category_name', f'업종 {idx+1}')
             total_sales = row.get('total_sales', 0)
             shop_count = row.get('shop_count', 0)
-            avg_sales = row.get('avg_sales', 0)
-            
-            with st.expander(f"{category_name} (점포당 분기별 평균 매출: {avg_sales:,}원)"):
+            if shop_count > 0:
+                avg_sales = total_sales / shop_count
+            else:
+                avg_sales = 0
+
+            with st.expander(f"{category_name} (점포당 분기별 매출: {avg_sales:,.0f}원)"):
                 col1, col2 = st.columns(2)
                 with col1:
                     st.write(f"**총 분기별 매출**: {total_sales:,}원")
                     st.write(f"**점포 수**: {int(shop_count)}개")
                 with col2:
                     st.write(f"**업종명**: {category_name}")
-                    if shop_count > 0:
-                        st.write(f"**점포당 분기별 평균 매출**: {avg_sales:,.2f}원")
+                    st.write(f"**점포당 분기별 평균 매출**: {avg_sales:,.0f}원")
     
     # 고객 인구통계
     if not demographics.empty:
@@ -99,7 +102,8 @@ def display_area_analysis_results(area_name, area_info, area_analysis, demograph
         st.subheader("📈 인구 패턴 분석")
         
         col1, col2 = st.columns(2)
-        
+        col3, col4 = st.columns(2)
+
         with col1:
             st.write("**요일별 유동인구**")
             # 실제 컬럼명 사용: mon, tue, wed, thu, fri, sat, sun
@@ -115,14 +119,21 @@ def display_area_analysis_results(area_name, area_info, area_analysis, demograph
             gender_data = population_patterns[gender_columns].iloc[0]
             fig_gender = create_gender_population_chart(gender_data)
             st.plotly_chart(fig_gender, use_container_width=True)
+        
+        with col3:
+            if not time_patterns.empty:
+                st.write("**시간대별 유동인구 패턴**")
+                fig_time = create_time_population_chart(time_patterns)
+                if fig_time:
+                    st.plotly_chart(fig_time, use_container_width=True)
+        
+        with col4:
+            st.write("**상주/직장인구**")
+            if population_chart:
+                st.plotly_chart(population_chart, use_container_width=True, key="population_chart_pattern")
+            else:
+                st.info("인구 데이터를 불러올 수 없습니다.")
     
-    # 시간대별 유동인구 패턴
-    if not time_patterns.empty:
-        st.write("**시간대별 유동인구 패턴**")
-        fig_time = create_time_population_chart(time_patterns)
-        if fig_time:
-            st.plotly_chart(fig_time, use_container_width=True)
-
 
 def display_category_analysis_results(category_name, category_analysis, category_demographics, category_time_patterns):
     """업종 분석 결과를 표시합니다."""
@@ -144,9 +155,13 @@ def display_category_analysis_results(category_name, category_analysis, category
             shop_count = row.get('shop_count', 0)
             gu = row.get('gu', '')
             dong = row.get('dong', '')
-            avg_sales = row.get('avg_sales', 0)
-            
-            with st.expander(f"{area_name} (점포당 분기별 평균 매출: {avg_sales:,}원)"):
+
+            if shop_count > 0:
+                avg_sales = total_sales / shop_count
+            else:
+                avg_sales = 0
+
+            with st.expander(f"{area_name} (점포당 분기별 매출: {avg_sales:,.0f}원)"):
                 col1, col2 = st.columns(2)
                 with col1:
                     st.write(f"**지역**: {gu} {dong}")
