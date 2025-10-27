@@ -13,6 +13,8 @@ from data import load_dashboard_data, prepare_sales_data
 
 
 def main():
+    st.set_page_config(layout="wide")
+
     """상권 추천 페이지를 렌더링합니다."""
     
     st.title("🏪 상권 추천 시스템")
