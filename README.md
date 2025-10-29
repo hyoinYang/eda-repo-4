@@ -1,11 +1,19 @@
+<!-- <h1> 
+  서울시 상권별 외식업 분포 및 매출 특성 분석
+  <h3>
+    매출-유동인구-소득의 상관관계 규명 및 성장•진입 전략 제안
+  </h3>
+</h1> -->
 
-<h2 align="center">
-  서울시 상권별 외식업 분포 및 매출 특성 분석 <br><br>
-  (매출-유동인구-소득의 상관관계 규명 및 성장•진입 전략 제안)
-</h2>
+<h1 align="center"><strong>서울시 상권별 외식업 분포 및 매출 특성 분석</strong></h1>
+<p align="center"><strong>매출-유동인구-소득의 상관관계 규명 및 성장•진입 전략 제안</strong></p>
+
+<a href=https://eda-repo-4-hp2bzipnzdbrre9jaeznnw.streamlit.app/>
+<img width="1200" height="630" alt="서울시 상권분석 대시보드 스크린샷" src="https://github.com/user-attachments/assets/230310af-45e1-488d-a16a-95c1eb205c8e" />
+</a>
 
 <p align="center">
-  4조 InsighTrio <br><br>
+  <b>4조 InsighTrio</b>
 </p>
 
 <div align="center">
@@ -115,3 +123,5 @@ Q5: 개폐업율이 매출에 미치는 영향은?
 
 
 Thanks to [JetBrains](https://www.jetbrains.com) for supporting us with a [free Open Source License](https://www.jetbrains.com/buy/opensource).
+
+
