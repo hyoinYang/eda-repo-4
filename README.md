@@ -1,20 +1,28 @@
+<!-- <h1> 
+  서울시 상권별 외식업 분포 및 매출 특성 분석
+  <h3>
+    매출-유동인구-소득의 상관관계 규명 및 성장•진입 전략 제안
+  </h3>
+</h1> -->
 
-<h2 align="center">
-  서울시 상권별 외식업 분포 및 매출 특성 분석 <br><br>
-  (매출-유동인구-소득의 상관관계 규명 및 성장•진입 전략 제안)
-</h2>
+<h1 align="center"><strong>서울시 상권별 외식업 분포 및 매출 특성 분석</strong></h1>
+<p align="center"><strong>매출-유동인구-소득의 상관관계 규명 및 성장•진입 전략 제안</strong></p>
+
+<a href=https://eda-repo-4-hp2bzipnzdbrre9jaeznnw.streamlit.app/>
+<img width="1200" height="630" alt="서울시 상권분석 대시보드 스크린샷" src="https://github.com/user-attachments/assets/230310af-45e1-488d-a16a-95c1eb205c8e" />
+</a>
 
 <p align="center">
-  4조 InsighTrio <br><br>
+  <b>4조 InsighTrio</b>
 </p>
 
 <div align="center">
 
   | Name | Role | GitHub | Email |
   |------|------|---------|--------|
-  | 이가람 | 팀장, 데이터 분석, 대시보드 제작 | [@rraamm8](https://github.com/rraamm8) | garam.rachel.lee@gmail.com |
-  | 이충협 | 데이터 분석 | [@chunghyeop](https://github.com/jihunlee) | leech3583@gmail.com |
-  | 양효인 | 데이터 분석, 대시보드 제작 / 배포 | [@hyoinyang](https://github.com/hyoinyang) | hyoinyang02@gmail.com |
+  | 이가람 | 팀장, 데이터 분석, DB 설계, 대시보드 구현 | [@rraamm8](https://github.com/rraamm8) | garam.rachel.lee@gmail.com |
+  | 이충협 | 데이터 분석, 특화상권 분석, 기술조사 및 문서화 | [@chunghyeop](https://github.com/jihunlee) | leech3583@gmail.com |
+  | 양효인 | 데이터 분석, DB 설계, 대시보드 구현 및 배포 | [@hyoinyang](https://github.com/hyoinyang) | hyoinyang02@gmail.com |
   
 </div>
 <br><br>
@@ -44,7 +52,8 @@
 
   * 소득소비 - 행정동 서울시 상권분석서비스 ([소득소비-행정동](https://data.seoul.go.kr/dataList/OA-22166/S/1/datasetView.do)) 
   * (상권 및 상권배후지는 소득데이터 수집하기에 면적이 너무 작아서 19년 이후 업데이트 중지되었기에, 최근데이터까지 업데이트되어 있고 잠재적 소비자가 있는 행정동단위로 확대하여 소득소비 지표 판단)
-
+<br>
+<br>
 
 ### 용어 정의
 
@@ -63,9 +72,16 @@
 
 * 외식업 업종 분류 10종 (서울시, 통계청 선정): 한식음식점, 중식음식점, 일식음식점, 양식음식점, 제과점, 패스트푸드점, 치킨전문점, 분식전문점, 호프-간이주점, 커피-음료
 
+<br>
+<br>
+
 ## 데이터 설계 (ERD)
 <img width="1918" height="1298" alt="image" src="https://github.com/user-attachments/assets/c36ae517-4977-4c15-92fa-20f29fec1619" />
 
+
+
+<br>
+<br>
 
 ## 가설 설정
 
@@ -87,12 +103,16 @@ Q4: 행정동 소득/소비 지표가 배후 수요(구매력)로서 매출을 �
 
 Q5: 개폐업율이 매출에 미치는 영향은?
 
-가설: 개업율이 높은 상권의 매출이 높고, 폐업율이 높은 경우 매출이 낮을 것이다. 
+가설: 개업율이 높은 상권의 매출이 높고, 폐업율이 높은 경우 매출이 낮을 것이다.
+<br>
+<br>
 
 ## 데이터 분석
 
 
 
+<br>
+<br>
 
 ## 개선 및 확장 방향
 
@@ -103,3 +123,5 @@ Q5: 개폐업율이 매출에 미치는 영향은?
 
 
 Thanks to [JetBrains](https://www.jetbrains.com) for supporting us with a [free Open Source License](https://www.jetbrains.com/buy/opensource).
+
+
